@@ -25,7 +25,7 @@ pipeline {
         }
         stage('Docker Build') {
             steps {
-                sh "docker build -t ${IMAGE_NAME}:${env.DOCKER_TAG} ."
+                sh "docker build -t ${IMAGE_NAME}:${env.DOCKER_TAG} ."  // ✅ fixed
             }
         }
         stage('Docker Login & Push') {

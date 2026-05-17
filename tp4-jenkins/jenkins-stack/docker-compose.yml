@@ -1,0 +1,44 @@
+services:
+  jenkins-controller:
+    build:
+      context: .
+      dockerfile: Dockerfile.controller
+    image: tp4-jenkins-controller:latest
+    container_name: tp4-jenkins-controller
+    restart: unless-stopped
+    ports:
+      - "8081:8080"     # UI Jenkins
+      - "50001:50000"   # port JNLP/agents
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      # Socket Docker de l'hote : permet aux pipelines de faire docker build / push
+      - //var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=true
+    networks:
+      - jenkins-net
+
+  jenkins-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    image: tp4-jenkins-agent:latest
+    container_name: tp4-jenkins-agent
+    restart: unless-stopped
+    ports:
+      - "2223:22"
+    environment:
+      # Cle publique SSH du controller (a remplir apres 1er demarrage, voir README)
+      - JENKINS_AGENT_SSH_PUBKEY=${JENKINS_AGENT_SSH_PUBKEY:-}
+    volumes:
+      # Socket Docker partage pour les pipelines qui buildent depuis l'agent
+      - //var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - jenkins-net
+
+volumes:
+  jenkins_home:
+
+networks:
+  jenkins-net:
+    driver: bridge

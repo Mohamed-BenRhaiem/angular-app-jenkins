@@ -1,0 +1,26 @@
+// Variante 3 : Jenkins controller sous Windows, SSH via plink.exe (PuTTY)
+// Pre-requis :
+//   - plink.exe dans le PATH du compte Jenkins (installer PuTTY)
+//   - credential usernamePassword 'vagrant-cred' (user=vagrant, pass=vagrant)
+//   - recuperer l'empreinte de la VM avec : plink.exe -ssh vagrant@192.168.56.10
+//     (accepter la cle une 1ere fois, ou la fournir via -hostkey)
+pipeline {
+    agent { label 'master' }
+
+    stages {
+        stage('SSH vers machine distante') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'vagrant-cred',
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASS'
+                )]) {
+                    bat '''
+                        plink.exe -ssh %USER%@192.168.56.10 -batch -pw %PASS% ^
+                            "mkdir -p ~/deploy_in_remote && echo OK > ~/deploy_in_remote/hello_folder.txt && ls -la ~/deploy_in_remote"
+                    '''
+                }
+            }
+        }
+    }
+}

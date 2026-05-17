@@ -1,0 +1,21 @@
+// Variante 1 : execution sur un Agent Jenkins distant (label 'remote')
+// Pre-requis : avoir declare la VM Vagrant comme Node permanent dans
+// Manage Jenkins -> Nodes -> New Node, avec Launch method = "Launch agents via SSH"
+// et le label 'remote'.
+pipeline {
+    agent { label 'remote' }
+
+    stages {
+        stage('build') {
+            steps {
+                sh '''
+                    echo "Creation du dossier sur la machine distante..."
+                    mkdir -p ~/deploy_in_remote
+                    cd ~/deploy_in_remote
+                    echo "Dossier cree avec succes !" > hello_folder.txt
+                    ls -la ~/deploy_in_remote
+                '''
+            }
+        }
+    }
+}

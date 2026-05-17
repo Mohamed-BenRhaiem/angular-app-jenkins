@@ -1,0 +1,26 @@
+// Variante 2 : Jenkins reste sur le master, il ouvre une session SSH vers la VM
+// Pre-requis : credential SSH (username + private key) avec ID 'Vagrant_ssh'
+// Compatible si Jenkins tourne sur Linux (ou WSL/Linux container).
+pipeline {
+    agent any
+
+    environment {
+        REMOTE_USER = 'vagrant'
+        REMOTE_HOST = '192.168.56.10'
+    }
+
+    stages {
+        stage('Deploy via SSH securise') {
+            steps {
+                sshagent(credentials: ['Vagrant_ssh']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} "\
+                            mkdir -p ~/deploy_in_remote && \
+                            echo 'Dossier cree depuis Jenkins' > ~/deploy_in_remote/hello_folder.txt && \
+                            ls -la ~/deploy_in_remote"
+                    '''
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,12 @@
+// Partie I du TP4 : pipeline "simple-pipeline" qui affiche Hello World
+pipeline {
+    agent { label 'master' }
+
+    stages {
+        stage('build') {
+            steps {
+                echo "Hello World!"
+            }
+        }
+    }
+}
